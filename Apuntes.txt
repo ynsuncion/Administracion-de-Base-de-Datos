@@ -1,0 +1,21 @@
+Clase 26
+analysis services
+reporting services
+
+Trabajo Practico Final
+1) Transaccion
+usar la basededatos adventureWorks 
+1.1) group by
+1.2) avg, if rollback else commit
+1.3) tp manejo de errores
+     error 404
+Transaccion
+conjunto de sentencias, o se ejecuta todo o nada
+funcion 
+@@ variable de sistema
+clase 12 transacciones 
+50 mil para arriba los codigos son personalizados 
+esquemas clase 13 
+consultas.box@gmail.com
+
+https://github.com/ProBats/ABD/blob/main/trabajos%20practicos/tp7/Trabajo%20Practico%20Sistema%20de%20Archivos.sql
