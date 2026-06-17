@@ -1,0 +1,354 @@
+CREATE PARTITION FUNCTION pflimites (DATETIME)
+AS RANGE RIGHT FOR VALUES 
+('2011-04-01', '2011-07-01', '2011-10-01');
+GO
+
+/* Explicación de los componentes clave:pflimites: Es el nombre de la función que se encargará de agrupar los datos.
+(DATETIME): Define que el campo utilizado para particionar la tabla será de tipo fecha/hora.AS 
+RANGE RIGHT: Significa que cada fecha límite (el 1 de abril, 1 de julio, etc.) pertenece a la partición que comienza ese mismo día (a la derecha de la frontera).
+FOR VALUES (...): Son los puntos de corte o fronteras que separan los datos.Cómo se distribuyen tus datos:
+Partición 1 (Antes del 1 de abril de 2011) Contiene: Todo dato anterior a '2011-04-01'.Equivale aproximadamente al primer cuatrimestre.
+Partición 2 (1 de abril al 30 de junio de 2011) Contiene: Desde '2011-04-01' hasta '2011-06-30 23:59:59'.Equivale aproximadamente al segundo cuatrimestre.
+Partición 3 (1 de julio al 30 de septiembre de 2011) Contiene: Desde '2011-07-01' hasta '2011-09-30 23:59:59'.Equivale aproximadamente al tercer cuatrimestre.
+Partición 4 (Desde el 1 de octubre de 2011 en adelante) Contiene: Cualquier fecha desde '2011-10-01' en adelante.
+¿Por qué se usa RANGE RIGHT en fechas? Es una de las mejores prácticas. Al definir los límites con RIGHT,
+ los días comienzan exactamente a las 00:00:00 en la partición correspondiente, evitando el riesgo de que registros de la medianoche terminen en la partición equivocada.
+*/
+
+
+
+SELECT
+    SERVERPROPERTY('ServerName') AS Servidor,
+    SERVERPROPERTY('IsIntegratedSecurityOnly') AS SoloWindows;
+GO
+/*
+CAMBIO A MODO MIXTO (DOCUMENTACIÓN OPERATIVA)
+
+ --USE [master];
+ --GO
+ 
+ --EXEC xp_instance_regwrite 
+ --    N'HKEY_LOCAL_MACHINE', 
+ --    N'Software\Microsoft\MSSQLServer\MSSQLServer',
+ --    N'LoginMode', 
+ --    REG_DWORD, 
+ --    2;  -- 2 = Mixed Mode (Windows + SQL Server)
+ --GO
+ 
+ --PRINT '✅ Configurado para cambiar a: Mixed Mode';
+ --PRINT '⚠️ REINICIA SQL Server para aplicar cambios:';
+ --PRINT '   CMD: net stop MSSQLSERVER && net start MSSQLSERVER';
+ --PRINT '   PowerShell: Restart-Service -Name MSSQLSERVER -Force';
+ --GO
+
+
+SELECT 
+    CASE SERVERPROPERTY('IsIntegratedSecurityOnly')
+        WHEN 0 THEN 'Mixed Mode ✅'
+        WHEN 1 THEN 'Windows Only ⚠️'
+    END AS ModoAutenticacion;
+GO
+
+
+--b)
+/*
+ EXEC xp_instance_regwrite 
+     N'HKEY_LOCAL_MACHINE', 
+     N'Software\Microsoft\MSSQLServer\MSSQLServer',
+     N'LoginMode', 
+     REG_DWORD, 
+     2;  -- 2 = Mixed Mode (Windows + SQL Server)
+ GO
+
+PRINT '✅ Configurado para cambiar a: Mixed Mode';
+PRINT '⚠️ REINICIA SQL Server para aplicar cambios:';
+PRINT '   CMD: net stop MSSQLSERVER && net start MSSQLSERVER';
+PRINT '   PowerShell: Restart-Service -Name MSSQLSERVER -Force';
+GO
+*/
+
+-- ============================================================================
+-- 2. APROVISIONAMIENTO CON POLITICAS
+-- ============================================================================
+-- Crear tres logins de servidor para el nuevo personal del Centro de Operaciones de Red (NOC) y del Equipo de Seguridad (SecOps):
+/* SecAuditor_Gomez
+NocMonitor_Lopez
+DbaJunior_Paz
+
+*/
+
+EJERCICIO 7.3
+👑 admin
+Puede tener db_datareader + db_datawriter
+Porque administra todo el sistema
+🛠 soporte
+Normalmente solo db_datareader
+No debería modificar datos reales
+🎬 creador de contenido
+db_datawriter + db_datareader (o incluso solo sobre catálogo en un diseño más avanzado)
+Porque modifica contenido
+📊 reportes
+db_datareader
+Solo análisis
+🔍 auditor
+db_datareader
+Luego se refuerza con VIEW DEFINITION en el punto siguiente
+
+EJERCICIO 8
+DATEADD(DAY, -30, GETDATE())
+
+msdb.dbo.sp_add_job
+
+significa:
+
+Parte	Significado
+msdb	base de datos del sistema
+dbo	esquema por defecto (database owner)
+sp_add_job	procedimiento almacenado
+
+
+
+EJERCICIO 9
+
+INIT vs FORMAT
+INIT → sobrescribe SOLO el archivo actual
+FORMAT → reinicializa el “medio de backup completo”
+En exámenes suelen aceptar ambos, pero INIT es más seguro
+
+⚠️ Ajustes recomendados
+1. ⚠️ FORMAT en diferencial
+WITH DIFFERENTIAL, FORMAT
+
+👉 Problema:
+
+FORMAT borra el medio de backup
+no es necesario en un diferencial
+en escenarios reales se considera mala práctica aquí
+
+✔ Recomendación: quitarlo
+
+2. ⚠️ Falta INIT (opcional pero recomendable)
+
+Si quieres control limpio del archivo:
+
+WITH DIFFERENTIAL, INIT
+
+BACKUP LOG CoffeeHouseDB
+TO DISK = 'C:\Backups\CoffeeHouseDB_LOG_02PM.trn'
+WITH NAME = 'Log Backup 02:00 PM', STATS = 10;
+
+EJERCICIO 9
+
+⚠️ AJUSTES NECESARIOS (IMPORTANTE)
+1. ❗ Error lógico en claves foráneas (ClienteID = 3)
+
+En esta parte:
+
+INSERT INTO Ordenes (ClienteID, Monto)
+VALUES (1, 210.00),
+       (3, 180.00);
+
+y luego:
+
+(3, 275.00);
+
+👉 El problema:
+
+El cliente 3 depende de que el INSERT de Lucía haya ocurrido correctamente.
+Pero no estás capturando su ID → esto es frágil y puede romper la consistencia.
+
+✔ Solución profesional: SCOPE_IDENTITY()
+
+2. ❗ Inconsistencia de rutas (DIFF)
+c:\backups\CoffeeHouseDB_diff.bak
+
+vs
+
+C:\Backups\CoffeeHouseDB_DIFF.bak
+
+👉 SQL Server no siempre es case-sensitive, pero en evaluación esto se considera error.
+
+3. ⚠️ Falta práctica real de DBA en BACKUP
+
+Te falta:
+
+WITH INIT
+
+en backups → evita append accidental.
+
+4. ⚠️ Validación final débil
+
+Solo haces JOIN, pero no verificas integridad real del negocio (conteo).
+
+✅ VERSIÓN FINAL “PERFECTA PARA ENTREGA”
+/* =========================================================================
+   EJERCICIO 9 - COFFEEHOUSEDB
+   Modelo FULL Recovery con BACKUP FULL + DIFF + LOG
+   ========================================================================= */
+
+USE master;
+GO
+
+-- LIMPIEZA SEGURA
+IF DB_ID('CoffeeHouseDB') IS NOT NULL
+BEGIN
+    ALTER DATABASE CoffeeHouseDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE CoffeeHouseDB;
+END
+GO
+
+-- =========================================================================
+-- 1. INFRAESTRUCTURA BASE (08:00 AM)
+-- =========================================================================
+CREATE DATABASE CoffeeHouseDB;
+GO
+
+USE CoffeeHouseDB;
+GO
+
+CREATE TABLE Clientes (
+    ClienteID INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Email VARCHAR(100)
+);
+
+CREATE TABLE Ordenes (
+    OrdenID INT IDENTITY(1,1) PRIMARY KEY,
+    ClienteID INT,
+    Fecha DATETIME DEFAULT GETDATE(),
+    Monto DECIMAL(10,2),
+    FOREIGN KEY (ClienteID) REFERENCES Clientes(ClienteID)
+);
+
+-- Datos iniciales
+INSERT INTO Clientes (Nombre, Email)
+VALUES ('Ana López', 'ana@coffee.com'),
+       ('Juan Pérez', 'juan@coffee.com');
+
+INSERT INTO Ordenes (ClienteID, Monto)
+VALUES (1, 120.50),
+       (2, 80.00);
+
+PRINT 'Estado inicial 08:00 AM';
+GO
+
+-- =========================================================================
+-- 2. BACKUP FULL (09:00 AM)
+-- =========================================================================
+ALTER DATABASE CoffeeHouseDB SET RECOVERY FULL;
+GO
+
+BACKUP DATABASE CoffeeHouseDB
+TO DISK = 'C:\Backups\CoffeeHouseDB_FULL.bak'
+WITH INIT,
+NAME = 'FULL Backup 09:00 AM';
+
+PRINT 'FULL backup completado';
+GO
+
+-- =========================================================================
+-- 3. BACKUP DIFERENCIAL (11:00 AM)
+-- =========================================================================
+
+DECLARE @LuciaID INT;
+
+INSERT INTO Clientes (Nombre, Email)
+VALUES ('Lucía Fernández', 'lucia@coffee.com');
+
+SET @LuciaID = SCOPE_IDENTITY();
+
+INSERT INTO Ordenes (ClienteID, Monto)
+VALUES (1, 95.00),
+       (2, 140.00);
+
+BACKUP DATABASE CoffeeHouseDB
+TO DISK = 'C:\Backups\CoffeeHouseDB_DIFF.bak'
+WITH DIFFERENTIAL, INIT,
+NAME = 'DIFF Backup 11:00 AM';
+
+PRINT 'Differential backup completado';
+GO
+
+-- =========================================================================
+-- 4. BACKUPS DE LOG (12:00 PM y 02:00 PM)
+-- =========================================================================
+
+INSERT INTO Ordenes (ClienteID, Monto)
+VALUES (1, 210.00),
+       (@LuciaID, 180.00);
+
+BACKUP LOG CoffeeHouseDB
+TO DISK = 'C:\Backups\CoffeeHouseDB_LOG_12PM.trn'
+WITH INIT,
+NAME = 'LOG Backup 12:00 PM';
+
+PRINT 'LOG 12:00 PM';
+
+GO
+
+INSERT INTO Ordenes (ClienteID, Monto)
+VALUES (2, 320.00),
+       (@LuciaID, 275.00);
+
+BACKUP LOG CoffeeHouseDB
+TO DISK = 'C:\Backups\CoffeeHouseDB_LOG_02PM.trn'
+WITH INIT,
+NAME = 'LOG Backup 02:00 PM';
+
+PRINT 'LOG 02:00 PM';
+GO
+
+-- =========================================================================
+-- 5. RECUPERACIÓN ANTE DESASTRE
+-- =========================================================================
+
+USE master;
+GO
+
+ALTER DATABASE CoffeeHouseDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+GO
+
+-- FULL
+RESTORE DATABASE CoffeeHouseDB
+FROM DISK = 'C:\Backups\CoffeeHouseDB_FULL.bak'
+WITH NORECOVERY, REPLACE;
+
+-- DIFF
+RESTORE DATABASE CoffeeHouseDB
+FROM DISK = 'C:\Backups\CoffeeHouseDB_DIFF.bak'
+WITH NORECOVERY;
+
+-- LOG 12
+RESTORE LOG CoffeeHouseDB
+FROM DISK = 'C:\Backups\CoffeeHouseDB_LOG_12PM.trn'
+WITH NORECOVERY;
+
+-- LOG 02 (FINAL)
+RESTORE LOG CoffeeHouseDB
+FROM DISK = 'C:\Backups\CoffeeHouseDB_LOG_02PM.trn'
+WITH RECOVERY;
+
+PRINT 'RECUPERACIÓN COMPLETA';
+GO
+
+-- =========================================================================
+-- 6. VALIDACIÓN FINAL
+-- =========================================================================
+
+USE CoffeeHouseDB;
+GO
+
+SELECT 
+    COUNT(*) AS TotalOrdenes,
+    SUM(Monto) AS TotalVentas
+FROM Ordenes;
+
+SELECT 
+    c.ClienteID,
+    c.Nombre,
+    o.Monto
+FROM Clientes c
+JOIN Ordenes o
+ON c.ClienteID = o.ClienteID
+ORDER BY o.OrdenID;
+GO
