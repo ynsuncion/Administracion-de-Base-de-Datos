@@ -1,0 +1,65 @@
+
+-Funciones escalares
+-Funciones de tabla en linea -> idem vistas pero con posibilidad de parametros
+-Funciones de tabla multisentencia
+
+-Procedimientos Almacenados
+
+-Triggers -> son stores procedures que se disparan ante un evento(operacion DML)
+
+----------------------------------------------------------
+
+Funciones escalares
+CREATE FUNCTION nombre()
+returns tipo_de_dato
+as
+BEGIN
+		/* cuerpo de la funcion*/
+END
+
+
+
+Funciones de tabla en linea
+CREATE FUNCTION nombre(@variable)
+returns table
+as
+	return (SELECT		campos
+			FROM		tabla1 as t1
+			INNER JOIN	tabla2 as t2
+			ON			t1.id=t2.id
+			WHERE		campo = @variable)
+
+
+
+Funciones de tabla multisentencia
+CREATE FUNCTION fnMultisentencia()
+returns @t table(codigo int,nombre varchar(200))
+as
+BEGIN
+
+		insert into @t
+		select 1,'juan'
+
+		insert into @t
+		select 2,'pepe'
+
+		insert into @t
+		select 3,'martin'
+
+		return
+END
+
+
+
+Procedimientos Almacenados
+CREATE PROCEDURE listarLibros
+as
+BEGIN
+	select *
+	from titles
+END
+
+exec listarLibros
+
+drop procedure listarLibros
+

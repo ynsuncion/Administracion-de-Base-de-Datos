@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Manual Técnico de Respaldos y Contingencias en SQL Server</title>
+    <style>
+        /* Modern Reset & Box Sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        @page {
+            size: A4;
+            margin: 18mm 16mm;
+            background-color: #f8fafc;
+            @bottom-right {
+                content: "Pág. " counter(page);
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                font-size: 8.5pt;
+                color: #94a3b8;
+                font-weight: 500;
+            }
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+            line-height: 1.6;
+            font-size: 10pt;
+            background-color: #f8fafc;
+        }
+        
+        /* Header Banner with Premium Gradient */
+        .header-container {
+            margin: -18mm -16mm 25px -16mm;
+            padding: 35px 16mm 30px 16mm;
+            background: linear-gradient(135deg, #0f3443 0%, #146c78 100%);
+            color: #ffffff;
+            border-bottom: 4px solid #0d9488;
+        }
+        
+        .header-container h1 {
+            margin: 0;
+            font-size: 21pt;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        
+        .header-container p {
+            margin: 8px 0 0 0;
+            font-size: 10.5pt;
+            color: #ccfbf1;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .intro-text {
+            font-size: 11pt;
+            color: #334155;
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            font-size: 13pt;
+            color: #0f3443;
+            margin-top: 26px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            page-break-after: avoid;
+        }
+        
+        /* Structural Cards for Concepts */
+        .criterion-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+            page-break-inside: avoid;
+        }
+        
+        .criterion-title {
+            font-size: 11.5pt;
+            color: #146c78;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .criterion-title::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 16px;
+            background-color: #0d9488;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+        
+        /* Styled Custom Bullet Points */
+        ul.custom-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        
+        ul.custom-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+        
+        ul.custom-list li::before {
+            content: "•";
+            position: absolute;
+            left: 4px;
+            color: #0d9488;
+            font-weight: bold;
+            font-size: 11pt;
+            top: -1px;
+        }
+        
+        ul.custom-list li strong {
+            color: #1e293b;
+        }
+        
+        .criterion-badge {
+            font-size: 8.5pt;
+            font-weight: 600;
+            background-color: #f0fdfa;
+            color: #0d9488;
+            padding: 2px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-top: 8px;
+            border: 1px solid #ccfbf1;
+        }
+
+        .criterion-badge.alert-badge {
+            background-color: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #fee2e2;
+        }
+        
+        .criterion-badge.info-badge {
+            background-color: #eff6ff;
+            color: #3b82f6;
+            border: 1px solid #dbeafe;
+        }
+
+        /* Technical Data Tables */
+        table.styled-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            font-size: 9.5pt;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+            page-break-inside: avoid;
+        }
+        
+        table.styled-table th {
+            background-color: #f1f5f9;
+            color: #0f3443;
+            font-weight: 600;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            font-size: 8pt;
+            letter-spacing: 0.5px;
+        }
+        
+        table.styled-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: top;
+        }
+        
+        table.styled-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        table.styled-table tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        
+        /* Code Block Styling */
+        pre {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Fira Code', monospace;
+            font-size: 9pt;
+            overflow-x: auto;
+            margin: 15px 0;
+            border: 1px solid #334155;
+            line-height: 1.4;
+            page-break-inside: avoid;
+        }
+        
+        .code-comment {
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .code-keyword {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+        
+        .code-string {
+            color: #34d399;
+        }
+        
+        /* Highlights & Accents */
+        .math-accent {
+            font-family: 'Consolas', monospace;
+            font-weight: 600;
+            color: #0d9488;
+            background-color: #f1f5f9;
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+        
+        .executive-callout {
+            background: linear-gradient(to right, #ffffff, #f0fdfa);
+            border: 1px solid #ccfbf1;
+            border-left: 5px solid #0d9488;
+            padding: 18px;
+            border-radius: 8px;
+            margin-top: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .executive-callout h3 {
+            margin: 0 0 8px 0;
+            font-size: 11pt;
+            color: #0f3443;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>Manual Técnico de Respaldos y Contingencias en SQL Server</h1>
+        <p>Estrategia de Seguridad, Cadena de Logs y Database Snapshots</p>
+    </div>
+
+    <p class="intro-text">
+        Una arquitectura robusta de disponibilidad y resiliencia en SQL Server combina técnicas tradicionales de backup con tecnologías de congelamiento de estado interno. Su correcta sincronización optimiza el espacio en disco, mitiga errores humanos inmediatos y reduce drásticamente el tiempo de caída.
+    </p>
+
+    <h2>1. Los Mecanismos de Protección de Datos</h2>
+
+    <div class="criterion-card">
+        <div class="criterion-title">Backup Completo (Full)</div>
+        <ul class="custom-list">
+            <li><strong>Concepto:</strong> Copia el 100% de la base estructural. Es indispensable como base maestra inicial.</li>
+            <li><strong>Uso Operativo:</strong> Alta demanda de hardware (I/O, red, CPU). Se programa de manera pasiva (fines de semana).</li>
+        </ul>
+    </div>
+
+    <div class="criterion-card">
+        <div class="criterion-title">Backup Diferencial (Differential)</div>
+        <ul class="custom-list">
+            <li><strong>Concepto:</strong> Respalda únicamente los bloques modificados desde el último backup Full maestro.</li>
+            <li><strong>Ventaja Directa:</strong> Agiliza el tiempo diario de copia y simplifica la restauración a solo dos archivos base.</li>
+        </ul>
+    </div>
+
+    <div class="criterion-card">
+        <div class="criterion-title">Backup del Log de Transacciones (Transaction Log)</div>
+        <ul class="custom-list">
+            <li><strong>Concepto:</strong> Grabación secuencial, histórica e ininterrumpida de todas las operaciones atómicas del motor.</li>
+            <li><strong>Ventaja Directa:</strong> Permite la restauración a un segundo exacto (<span class="math-accent">Point-in-Time</span>) y recicla el espacio del <span class="math-accent">.ldf</span>.</li>
+        </ul>
+        <div class="criterion-badge">Requisito: La base de datos debe estar configurada bajo SET RECOVERY FULL</div>
+    </div>
+
+    <div class="criterion-card">
+        <div class="criterion-title">Database Snapshot (Instantánea)</div>
+        <ul class="custom-list">
+            <li><strong>Concepto:</strong> Vista estática, asíncrona y de <strong>solo lectura</strong> de la base de datos en un instante de tiempo específico.</li>
+            <li><strong>Mecanismo interno:</strong> Utiliza la tecnología <span class="math-accent">Copy-on-Write</span> (Copia al escribir). Inicialmente no ocupa espacio; solo almacena los bloques de datos originales a medida que estos son modificados o eliminados en la base de datos activa.</li>
+            <li><strong>Casos de Uso:</strong> Escudo de protección inmediata antes de desplegar scripts masivos riesgosos y aislamiento para reportes pesados de auditoría.</li>
+        </ul>
+        <div class="criterion-badge info-badge">Ubicación obligatoria: Reside estrictamente dentro del mismo servidor de la base original</div>
+    </div>
+
+    <h2>2. Comparativa Estratégica: Backup vs. Snapshot</h2>
+    <p style="color: #64748b; font-size: 9.5pt; margin-bottom: 5px;">Métricas diferenciales clave para el diseño de políticas de contingencia:</p>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Característica</th>
+                <th>Backup Tradicional (.bak / .trn)</th>
+                <th>Database Snapshot (.ss)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Portabilidad</strong></td>
+                <td><strong>Alta.</strong> Archivo externo autónomo. Se puede mover a almacenamiento offline u otros servidores.</td>
+                <td><strong>Nula.</strong> Depende de la existencia y salud de la base original. Vive y muere en el mismo servidor.</td>
+            </tr>
+            <tr>
+                <td><strong>Tiempo de Generación</strong></td>
+                <td>Depende del volumen total de datos (de minutos a horas).</td>
+                <td><strong>Instantáneo.</strong> Se crea en milisegundos sin importar el tamaño de la base de datos.</td>
+            </tr>
+            <tr>
+                <td><strong>Velocidad de Retorno</strong></td>
+                <td>Lento. Debe leer, copiar y validar los archivos físicos completos en el disco.</td>
+                <td><strong>Ultra rápido.</strong> El comando revertir reescribe únicamente los bloques guardados en el diferencial del snapshot.</td>
+            </tr>
+            <tr>
+                <td><strong>Log de Transacciones</strong></td>
+                <td>Esencial para mantener la integridad secuencial.</td>
+                <td>No lo utiliza. Ignora los flujos del archivo log.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 style="page-break-before: always;">3. Flujo Técnico Unificado de Código (T-SQL)</h2>
+    <p style="color: #64748b; margin-bottom: 10px;">Script cronológico completo que asocia modelos de recuperación, copias tradicionales, protección mediante instantánea instantánea y protocolos de recuperación total:</p>
+
+    <pre><span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- PASO 1: CONFIGURACIÓN INICIAL Y GENERACIÓN DE LÍNEAS BASE</span>
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-keyword">ALTER DATABASE</span> [pubs] <span class="code-keyword">SET RECOVERY FULL</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">BACKUP DATABASE</span> [pubs]
+<span class="code-keyword">TO DISK</span> = <span class="code-string">'c:\backups\pubs.bak'</span>
+<span class="code-keyword">WITH FORMAT</span>, <span class="code-keyword">MEDIANAME</span> = <span class="code-string">'Pubs'</span>, <span class="code-keyword">NAME</span> = <span class="code-string">'Full-Pubs backup'</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- Modificación de estructura de datos</span>
+<span class="code-keyword">USE</span> pubs;
+<span class="code-keyword">GO</span>
+<span class="code-keyword">CREATE TABLE</span> prueba(codigo <span class="code-keyword">int</span>);
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">BACKUP DATABASE</span> [pubs]
+<span class="code-keyword">TO DISK</span> = <span class="code-string">'c:\backups\pubs_diff.bak'</span>
+<span class="code-keyword">WITH DIFFERENTIAL</span>, <span class="code-keyword">FORMAT</span>,
+<span class="code-keyword">MEDIANAME</span> = <span class="code-string">'Native_SQLServerDiffBackup'</span>, <span class="code-keyword">NAME</span> = <span class="code-string">'Diff-pubs backup'</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- PASO 2: PROTECCIÓN INMEDIATA (CREACIÓN DEL SNAPSHOT)</span>
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- Creamos la instantánea estática antes de permitir inserciones complejas por la mañana.</span>
+<span class="code-comment">-- Nota: Requiere especificar el nombre lógico del archivo de datos ('pubs')</span>
+<span class="code-keyword">CREATE DATABASE</span> pubs_snapshot_mañana
+<span class="code-keyword">ON</span> ( 
+    <span class="code-keyword">NAME</span> = <span class="code-string">'pubs'</span>, 
+    <span class="code-keyword">FILENAME</span> = <span class="code-string">'c:\backups\pubs_mañana.ss'</span>
+)
+<span class="code-keyword">AS SNAPSHOT OF</span> [pubs];
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- Inserciones de producción por parte de los operadores de la empresa</span>
+<span class="code-keyword">INSERT INTO</span> prueba <span class="code-keyword">VALUES</span> (10);
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- PASO 3: CADENA DE LOGS TRANSACCIONALES</span>
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-keyword">BACKUP LOG</span> [pubs]
+<span class="code-keyword">TO DISK</span> = <span class="code-string">'c:\backups\pubs_log1.trn'</span>
+<span class="code-keyword">WITH FORMAT</span>, <span class="code-keyword">NAME</span> = <span class="code-string">'Log-Pubs backup 1'</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">INSERT INTO</span> prueba <span class="code-keyword">VALUES</span> (20);
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">BACKUP LOG</span> [pubs]
+<span class="code-keyword">TO DISK</span> = <span class="code-string">'c:\backups\pubs_log2.trn'</span>
+<span class="code-keyword">WITH FORMAT</span>, <span class="code-keyword">NAME</span> = <span class="code-string">'Log-Pubs backup 2'</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- PASO 4: PROTOCOLO DE CONTINGENCIA A (REVERTIR POR SNAPSHOT - ULTRA RÁPIDO)</span>
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- Escenario: Un script malintencionado corrompe datos y decidimos volver al snapshot de la mañana.</span>
+<span class="code-comment">-- Forzamos el modo monousuario para desconectar sesiones activas.</span>
+<span class="code-keyword">USE</span> master;
+<span class="code-keyword">GO</span>
+<span class="code-keyword">ALTER DATABASE</span> [pubs] <span class="code-keyword">SET SINGLE_USER WITH ROLLBACK IMMEDIATE</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- Volcamos el snapshot sobre la base original (revierte los cambios instantáneamente)</span>
+<span class="code-keyword">RESTORE DATABASE</span> [pubs] 
+<span class="code-keyword">FROM DATABASE_SNAPSHOT</span> = <span class="code-string">'pubs_snapshot_mañana'</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">ALTER DATABASE</span> [pubs] <span class="code-keyword">SET MULTI_USER</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- Una vez validada la estabilidad, destruimos el snapshot (Buena práctica de rendimiento)</span>
+<span class="code-keyword">DROP DATABASE</span> pubs_snapshot_mañana;
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- PASO 5: PROTOCOLO DE CONTINGENCIA B (RESTAURACIÓN TRADICIONAL COMPLETA)</span>
+<span class="code-comment">-- ============================================================================</span>
+<span class="code-comment">-- Escenario alternativo: Fallo físico de disco. Reconstrucción completa mediante archivos .bak y .trn.</span>
+<span class="code-keyword">RESTORE DATABASE</span> [pubs]
+<span class="code-keyword">FROM DISK</span> = <span class="code-string">'c:\backups\pubs.bak'</span>
+<span class="code-keyword">WITH NORECOVERY</span>, <span class="code-keyword">REPLACE</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">RESTORE DATABASE</span> [pubs]
+<span class="code-keyword">FROM DISK</span> = <span class="code-string">'C:\backups\pubs_diff.bak'</span>
+<span class="code-keyword">WITH NORECOVERY</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">RESTORE LOG</span> [pubs]
+<span class="code-keyword">FROM DISK</span> = <span class="code-string">'c:\backups\pubs_log1.trn'</span>
+<span class="code-keyword">WITH NORECOVERY</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-keyword">RESTORE LOG</span> [pubs]
+<span class="code-keyword">FROM DISK</span> = <span class="code-string">'c:\backups\pubs_log2.trn'</span>
+<span class="code-keyword">WITH RECOVERY</span>;
+<span class="code-keyword">GO</span></pre>
+
+    <h2>4. Auditoría e Inspección de Metadatos</h2>
+    <p>Comando para evaluar las rutas y nombres lógicos contenidos en un backup sin ejecutar operaciones de restauración:</p>
+    <pre><span class="code-keyword">RESTORE FILELISTONLY FROM DISK</span> = <span class="code-string">'C:\backups\pubs.bak'</span>;</pre>
+
+    <div class="executive-callout">
+        <h3>Estrategia de Arquitectura Unificada</h3>
+        <p>
+            Utilice las copias de seguridad tradicionales (<strong>Full, Diferenciales y Logs</strong>) como su salvaguarda inquebrantable frente a desastres físicos, pérdidas de hardware o corrupción total de servidores. En paralelo, incorpore los <strong>Database Snapshots</strong> como herramientas tácticas operativas de ejecución inmediata para proteger el entorno antes de cambios críticos de software o actualizaciones masivas en la base de datos de producción.
+        </p>
+    </div>
+
+</body>
+</html>

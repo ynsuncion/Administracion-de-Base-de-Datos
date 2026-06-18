@@ -1,0 +1,56 @@
+
+actura = @#factura + #cliente + nombre cliente + fecha + {#artículo + nombre artículo + cantidad artículo +
+precio unitario + precio por cantidad} + precio total.
+
+
+PRIMERA FORMA NORMAL (1FN)
+Una estructura de datos sin grupos repetitivos está automáticamente en Primera Forma Normal.
+
+Factura_Cabecera = @#factura + #cliente + nombre cliente + fecha + precio total.
+
+Factura_Detalle = @#factura + @#artículo + nombre artículo + cantidad artículo + precio unitario + precio por cantidad.
+
+
+SEGUNDA FORMA NORMAL(2FN)
+Un objeto está en Segunda Forma Normal si está en Primera Forma Normal y además todos los atributos no clave
+tienen dependencia funcional completa con la clave primaria.
+
+Factura_Cabecera = @#factura + #cliente + nombre cliente + fecha + precio total.
+
+Factura_Detalle = @#factura + @#artículo + cantidad artículo + precio por cantidad.
+
+Articulo = @#artículo + nombre artículo + precio unitario
+
+TERCERA FORMA NORMAL(3FN)
+Un objeto está en Tercera Forma Normal si está en Segunda Forma Normal y además todos sus atributos que no
+son clave primaria sean independientes entre sí
+
+Factura_Cabecera = @#factura + #cliente + fecha + precio total.
+
+Cliente = @#cliente + nombre cliente.
+
+Factura_Detalle = @#factura + @#artículo + cantidad artículo + precio por cantidad.
+
+Articulo = @#artículo + nombre artículo + precio unitario.
+
+
+Nota: precio total y precio por cantidad se deben eliminar ya que se pueden calcular con otros atributos. Precio por cantidad multiplicando la cantidad de artículos por el precio unitario, y el precio total con la suma de todos los precios por cantidad.
+
+precio por cantidad = precio unitario * cantidad artículo
+
+precio total = sum(precio por cantidad)
+
+
+
+Estructura Normalizada
+
+Factura_Cabecera = @#factura + #cliente + fecha
+
+Cliente = @#cliente + nombre cliente.
+
+Factura_Detalle = @#factura + @#artículo + cantidad artículo.
+
+Articulo = @#artículo + nombre artículo + precio unitario.
+
+
+

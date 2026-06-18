@@ -1,0 +1,39 @@
+Ejercicio 3
+
+Caso A: si un solo cliente es el que hace la reserva:
+
+1FN / 2FN 
+Reserva Hotel = @#Reserva + Nombre_Hotel + Fecha_Ingreso + Fecha_Egreso + Apellido_Cliente + Nombre_Cliente + #DNI_Cliente + #Cantidad_Clientes
+
+3FN
+Reserva Hotel = @#Reserva + #DNI_Cliente + Nombre_Hotel + Fecha_Ingreso + Fecha_Egreso + #Cantidad_Clientes 
+
+Cliente = @#DNI_Cliente + Apellido_Cliente + Nombre_Cliente
+
+Conclusion: Cada reserva la hace un solo cliente aunque lleve a su familia, pero
+cada cliente puede hacer mas de una reserva.
+
+
+--------------------------------------------------------------------------------------
+
+Caso B: una reserva puede tener multiples clientes:
+Reserva Hotel = @#Reserva + Nombre_Hotel + Fecha_Ingreso + Fecha_Egreso + {Apellido_Cliente + Nombre_Cliente + @#DNI_Cliente} + #Cantidad_Clientes
+
+
+1FN
+Reserva Hotel = @#Reserva + Nombre_Hotel + Fecha_Ingreso + Fecha_Egreso + Cantidad_Clientes
+
+Reserva_Cliente = @#Reserva + @#DNI_Cliente + Apellido_Cliente + Nombre_Cliente
+
+2FN / 3FN
+Reserva Hotel = @#Reserva + Nombre_Hotel + Fecha_Ingreso + Fecha_Egreso + Cantidad_Clientes
+
+Reserva_Cliente = @#Reserva + @#DNI_Cliente        
+
+Cliente = @#DNI_Cliente + Apellido_Cliente + Nombre_Cliente
+
+
+
+
+
+

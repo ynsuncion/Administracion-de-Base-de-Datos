@@ -1,0 +1,39 @@
+Presupuesto_Solicitado = @#Presupuesto + Fecha del dia + Fecha Caducidad Presupuesto + Razón Social + {@#Codigo Producto + Descripción Producto + #Precio Unitario + #Cantidad + #Precio x Cantidad} + #Precio Total.
+
+1FN
+Presupuesto_Solicitado = @#Presupuesto + Fecha del dia + Fecha Caducidad Presupuesto + Razón Social + #Precio Total.
+
+Presupuesto_Detalle = @#Presupuesto + @#Codigo Producto + Descripción Producto + #Precio Unitario + #Cantidad + #Precio x Cantidad
+
+
+2FN
+Presupuesto_Solicitado = @#Presupuesto + Fecha del dia + Fecha Caducidad Presupuesto + Razón Social + #Precio Total.
+
+Presupuesto_Detalle = @#Presupuesto + @#Codigo Producto + #Cantidad + #Precio x Cantidad
+
+Producto =  @#Codigo Producto + Descripción Producto + #Precio Unitario
+
+
+3FN
+Presupuesto_Solicitado = @#Presupuesto + Fecha del dia + Fecha Caducidad Presupuesto + Razón Social + #Precio Total.
+
+Presupuesto_Detalle = @#Presupuesto + @#Codigo Producto + #Cantidad + #Precio x Cantidad
+
+Producto =  @#Codigo Producto + Descripción Producto + #Precio Unitario
+
+
+Atributos calculados  
+#Precio x Cantidad =  #Precio Unitario * #Cantidad
+#Precio Total = sum(#Precio Unitario * #Cantidad)
+
+
+Estructura Normalizada
+Presupuesto_Solicitado = @#Presupuesto + Fecha del dia + Fecha Caducidad Presupuesto + Razón Social.
+
+Presupuesto_Detalle = @#Presupuesto + @#Codigo Producto + #Cantidad
+
+Producto =  @#Codigo Producto + Descripción Producto + #Precio Unitario
+
+
+
+
